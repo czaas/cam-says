@@ -8,7 +8,6 @@
 	import { onMount } from 'svelte';
 
 	const options = ['green', 'red', 'yellow', 'blue'];
-	const lengthOfTimeToDisplay = 600;
 	const lengthOfTimeBetweenColors = 400;
 
 	let isDemonstratingOrder = true;
