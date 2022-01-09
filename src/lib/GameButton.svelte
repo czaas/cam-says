@@ -7,6 +7,7 @@
 <button
 	class="box"
 	style="background: {color};"
+	id={color}
 	class:highlight={color === highlightedColor}
 	aria-label={color}
 	on:click={click}

@@ -3,40 +3,50 @@
 </script>
 
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import GameButton from '$lib/GameButton.svelte';
 	import { goto } from '$app/navigation';
+	import GameButton from '$lib/GameButton.svelte';
+	import { onMount } from 'svelte';
 
 	const options = ['green', 'red', 'yellow', 'blue'];
 	const lengthOfTimeToDisplay = 600;
-	const lengthOfTimeBetweenColors = 500;
+	const lengthOfTimeBetweenColors = 400;
 
 	let isDemonstratingOrder = true;
 	let order: string[] = [options[getNextRandom()]];
 	let currentColor: string = null;
 	let clickOrder: string[] = [];
 
+	const el = {
+		green: null,
+		blue: null,
+		red: null,
+		yellow: null
+	};
+
 	onMount(() => {
+		el.green = document.getElementById('green');
+		el.blue = document.getElementById('blue');
+		el.red = document.getElementById('red');
+		el.yellow = document.getElementById('yellow');
+
 		setTimeout(() => {
 			displayOrder();
-		}, 1000);
+		}, 500);
 	});
 
 	function displayOrder() {
 		order.forEach((color, i) => {
-			setTimeout(
-				() => {
-					currentColor = color;
-					const lastItem = i === order.length - 1;
-					if (lastItem) {
-						isDemonstratingOrder = false;
-					}
-					setTimeout(() => {
-						currentColor = null;
-					}, lengthOfTimeToDisplay);
-				},
-				i === 0 ? lengthOfTimeToDisplay - lengthOfTimeBetweenColors : lengthOfTimeBetweenColors * i
-			);
+			const timeSeparation = lengthOfTimeBetweenColors * (i + 1);
+			setTimeout(() => {
+				// find button and click it programatically
+				el[color].classList.add('highlight');
+				setTimeout(() => {
+					el[color].classList.remove('highlight');
+				}, 100);
+				if (i === order.length - 1) {
+					isDemonstratingOrder = false;
+				}
+			}, timeSeparation);
 		});
 	}
 
@@ -76,7 +86,7 @@
 <p>Current Level {order.length}</p>
 
 <section class:disabled={isDemonstratingOrder}>
-	{#each options as color}
+	{#each options as color, i}
 		<GameButton {color} highlightedColor={currentColor} click={() => handleColorClick(color)} />
 	{/each}
 </section>
