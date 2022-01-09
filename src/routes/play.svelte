@@ -7,26 +7,28 @@
 	import GameButton from '$lib/GameButton.svelte';
 	import { onMount } from 'svelte';
 
-	const options = ['green', 'red', 'yellow', 'blue'];
-	const lengthOfTimeBetweenColors = 400;
-
-	let isDemonstratingOrder = true;
-	let order: string[] = [options[getNextRandom()]];
-	let currentColor: string = null;
-	let clickOrder: string[] = [];
-
-	const el = {
+	const colorOptions = {
+		beige: null,
 		green: null,
 		blue: null,
 		red: null,
-		yellow: null
+		yellow: null,
+		purple: null
 	};
+	const colorOptionsNames = Object.keys(colorOptions);
+	const lengthOfTimeBetweenColors = 400;
+
+	let isDemonstratingOrder = true;
+	let order: string[] = [];
+	let currentColor: string = null;
+	let clickOrder: string[] = [];
 
 	onMount(() => {
-		el.green = document.getElementById('green');
-		el.blue = document.getElementById('blue');
-		el.red = document.getElementById('red');
-		el.yellow = document.getElementById('yellow');
+		addNextColorOption();
+
+		colorOptionsNames.forEach((color) => {
+			colorOptions[color] = document.getElementById(color);
+		});
 
 		setTimeout(() => {
 			displayOrder();
@@ -38,9 +40,9 @@
 			const timeSeparation = lengthOfTimeBetweenColors * (i + 1);
 			setTimeout(() => {
 				// find button and click it programatically
-				el[color].classList.add('highlight');
+				colorOptions[color].classList.add('highlight');
 				setTimeout(() => {
-					el[color].classList.remove('highlight');
+					colorOptions[color].classList.remove('highlight');
 				}, 100);
 				if (i === order.length - 1) {
 					isDemonstratingOrder = false;
@@ -59,9 +61,8 @@
 		const isSameAsLast = color === expected;
 
 		if (isDoneWithLevel && isSameAsLast) {
-			const nextColorIndex = getNextRandom();
 			clickOrder = [];
-			order = [...order, options[nextColorIndex]];
+			addNextColorOption();
 			isDemonstratingOrder = true;
 			setTimeout(() => {
 				displayOrder();
@@ -73,8 +74,18 @@
 		}
 	}
 
-	function getNextRandom() {
-		return Math.floor(Math.random() * options.length);
+	function getRandomFromOptionsList() {
+		return Math.floor(Math.random() * colorOptionsNames.length);
+	}
+	function addNextColorOption() {
+		const nextColor = colorOptionsNames[getRandomFromOptionsList()];
+		const prevColor = order[order.length - 1];
+		const secondToLastPrevColor = order[order.length - 2];
+		if (order.length <= 2 || (prevColor !== nextColor && secondToLastPrevColor !== nextColor)) {
+			order = [...order, nextColor];
+		} else {
+			addNextColorOption();
+		}
 	}
 </script>
 
@@ -85,7 +96,7 @@
 <p>Current Level {order.length}</p>
 
 <section class:disabled={isDemonstratingOrder}>
-	{#each options as color, i}
+	{#each colorOptionsNames as color, i}
 		<GameButton {color} highlightedColor={currentColor} click={() => handleColorClick(color)} />
 	{/each}
 </section>
